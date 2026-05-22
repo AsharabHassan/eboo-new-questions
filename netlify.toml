@@ -1,0 +1,42 @@
+# Netlify configuration for the HSW EBOO Next.js app.
+# The official @netlify/plugin-nextjs is auto-installed during build, so
+# the Next.js App Router, Server Components, and API route handlers
+# (/api/lead → GHL + Resend + Meta CAPI) all just work.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # Next.js 15 requires Node 18.18+; lock to a current LTS for reproducibility.
+  NODE_VERSION = "20"
+  # Quiet the npm advisory noise during build.
+  NPM_FLAGS = "--no-audit --no-fund"
+
+# ---------- Cache headers ----------
+# Long-cache the testimonial video and its poster so repeat visitors don't
+# re-download the 8.5 MB MP4. Filenames are stable, so immutable is safe.
+[[headers]]
+  for = "/videos/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Bundled fonts via @fontsource — same logic.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ---------- Security headers ----------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# ---------- Branch-aware NEXT_PUBLIC_SITE_URL ----------
+# Production deploys get the prod URL; preview/branch deploys substitute
+# Netlify's auto-generated URL via the DEPLOY_PRIME_URL build var (handled
+# inside the app code). No per-environment override needed here.

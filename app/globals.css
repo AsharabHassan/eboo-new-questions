@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #0B0F1A;
+    --bg-raised: #11161F;
+    --ink: #F5F1E8;
+    --ink-dim: #9C9586;
+    --ink-faint: #4A4636;
+    --gold: #C9A347;
+    --gold-deep: #8E6F2A;
+    --rouge: #6B1D2E;
+    --line: rgba(245, 241, 232, 0.08);
+
+    /* Font-family handles (bundled locally via @fontsource — no Google Fonts fetch at build time) */
+    --font-fraunces: "Fraunces", Georgia, serif;
+    --font-outfit: "Outfit", ui-sans-serif, system-ui, sans-serif;
+    --font-jetbrains: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  html, body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  body {
+    min-height: 100dvh;
+  }
+
+  ::selection {
+    background: var(--gold);
+    color: var(--bg);
+  }
+}
+
+@layer utilities {
+  /* Film grain — global overlay layer; rendered as a fixed pseudo on <body> */
+  .grain::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.12 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: 0.45;
+    mix-blend-mode: overlay;
+  }
+
+  .vignette::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.55) 100%);
+  }
+
+  /* Serif italic with optical-size & SOFT axis dialed for editorial accent */
+  .italic-display {
+    font-style: italic;
+    font-variation-settings: 'opsz' 144, 'SOFT' 80;
+  }
+
+  .display-tight {
+    font-variation-settings: 'opsz' 144, 'SOFT' 30;
+    letter-spacing: -0.04em;
+  }
+
+  /* Marker lines */
+  .hairline {
+    background: var(--line);
+    height: 1px;
+  }
+
+  /* Hide scrollbar on marquees */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Marquee keyframe */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 60s linear infinite;
+}
+.animate-marquee-slow {
+  animation: marquee 90s linear infinite;
+}
+.animate-marquee-slow:hover,
+.group:hover .animate-marquee-slow {
+  animation-play-state: paused;
+}
+
+/* SVG flow animations */
+@keyframes flow {
+  to { stroke-dashoffset: -200; }
+}
+@keyframes pulse-node {
+  0%, 100% { r: 3; opacity: 0.7; }
+  50% { r: 6; opacity: 1; }
+}
+@keyframes rotate-slow {
+  to { transform: rotate(360deg); }
+}
