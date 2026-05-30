@@ -82,7 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={jsonLd(websiteJsonLd())}
         />
       </head>
-      <body className="grain vignette">
+      <body className="grain vignette" suppressHydrationWarning>
         <SmoothScroll>{children}</SmoothScroll>
         {/* Meta Pixel — paired with server-side CAPI for browser/server dedup. */}
         <MetaPixel pixelId={META_PIXEL_ID} />

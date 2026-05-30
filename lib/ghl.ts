@@ -66,6 +66,7 @@ export function buildGhlPayload(input: GhlPayloadInput) {
   ) as Record<"env" | "lifestyle" | "symptoms" | "age", number>;
 
   const needsScreening = input.safety.length > 0;
+  const city = stringAnswer(input.answers, "location"); // "london" | "glasgow" | ""
 
   // Split first / last name conservatively (GHL has both fields).
   const [firstName, ...lastParts] = input.name.trim().split(/\s+/);
@@ -86,6 +87,7 @@ export function buildGhlPayload(input: GhlPayloadInput) {
       `track-${input.track}`,
       `band-${band.tone}`,
       needsScreening ? "needs-screening" : "no-safety-flags",
+      city ? `city-${city}` : "city-unknown",
     ].join(","),
 
     // -------- Score & banding --------
@@ -114,6 +116,8 @@ export function buildGhlPayload(input: GhlPayloadInput) {
     answer_age_value: stringAnswer(input.answers, "age"),
     answer_goal: answerLabel(input.answers, "goal") ?? "",
     answer_goal_value: stringAnswer(input.answers, "goal"),
+    answer_location: answerLabel(input.answers, "location") ?? "",
+    answer_location_value: city,
     answer_pregnancy: answerLabel(input.answers, "pregnancy") ?? "",
     answer_g6pd: answerLabel(input.answers, "g6pd") ?? "",
     answer_anticoag: answerLabel(input.answers, "anticoag") ?? "",

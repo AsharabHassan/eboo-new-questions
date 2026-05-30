@@ -162,8 +162,16 @@ export async function POST(req: Request) {
     undefined;
 
   // ---- Send to GoHighLevel via inbound webhook (if configured) ----
+  // Route by location: Glasgow leads go to the Glasgow workflow, everyone
+  // else (London) goes to the default webhook. Glasgow falls back to the
+  // London URL if its own isn't configured yet, so nothing is ever dropped.
+  const leadCity = typeof body.answers.location === "string" ? body.answers.location : "";
+  const londonWebhookUrl = process.env.GHL_WEBHOOK_URL;
+  const glasgowWebhookUrl = process.env.GHL_WEBHOOK_URL_GLASGOW;
+  const ghlWebhookUrl =
+    leadCity === "glasgow" ? glasgowWebhookUrl || londonWebhookUrl : londonWebhookUrl;
+
   const ghlResult: { sent: boolean; status?: number; error?: string } = { sent: false };
-  const ghlWebhookUrl = process.env.GHL_WEBHOOK_URL;
 
   if (ghlWebhookUrl) {
     const ghlPayload = buildGhlPayload({
@@ -191,9 +199,11 @@ export async function POST(req: Request) {
     ghlResult.sent = r.ok;
     if (r.status) ghlResult.status = r.status;
     if (r.error) ghlResult.error = r.error;
-    if (!r.ok) console.warn("[lead] GHL webhook failed", r);
+    const routedTo = leadCity === "glasgow" && glasgowWebhookUrl ? "glasgow" : "london";
+    if (!r.ok) console.warn(`[lead] GHL webhook failed (${routedTo})`, r);
+    else console.info(`[lead] GHL webhook sent (${routedTo})`);
   } else {
-    console.info("[lead] GHL_WEBHOOK_URL not set — skipping CRM push");
+    console.info(`[lead] no GHL webhook configured for "${leadCity || "london"}" — skipping CRM push`);
   }
 
   // ---- Send to Meta Conversions API (paired with browser Pixel for dedup) ----
@@ -201,6 +211,7 @@ export async function POST(req: Request) {
 
   if (process.env.META_PIXEL_ID && process.env.META_CAPI_ACCESS_TOKEN) {
     const [firstName, ...lastParts] = emailInput.name.split(/\s+/);
+    const city = typeof body.answers.location === "string" ? body.answers.location : "";
 
     const r = await postToMetaCapi({
       eventName: "Lead",
@@ -211,6 +222,7 @@ export async function POST(req: Request) {
         firstName,
         lastName: lastParts.join(" "),
         phone: phoneE164 || phoneRaw || undefined,
+        city: city || undefined,
         country: "gb",
         fbp: metaFbp,
         fbc: metaFbc,
@@ -223,6 +235,7 @@ export async function POST(req: Request) {
         value: 0,
         content_name: "EBOO Assessment",
         content_category: track,
+        city: city || "unknown",
         toxic_load_score: score,
         protocol_track: track,
         score_band: score >= 81 ? "critical" : score >= 61 ? "heavy" : score >= 31 ? "moderate" : "light",

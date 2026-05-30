@@ -28,7 +28,7 @@ export type SafetyFlag = "pregnancy" | "g6pd" | "anticoagulant";
 
 export type Question = {
   id: string;
-  act: 1 | 2 | "safety" | "email";
+  act: 1 | 2 | "safety" | "location" | "email";
   /** Display index of the question within the whole flow (1..n). */
   index: number;
   eyebrow: string;
@@ -232,11 +232,29 @@ export const QUESTIONS: Question[] = [
     ],
   },
 
+  // ============ LOCATION (final question before data capture) ============
+  // Captured for routing and CRM segmentation only — does NOT affect the
+  // score. London and Glasgow both carry the same (maximum) assumed
+  // environmental load, so the reading is identical either way.
+  {
+    id: "location",
+    act: "location",
+    index: 8,
+    eyebrow: "Final question",
+    prompt: "Where are you based?",
+    subtitle: "We see patients in London and Glasgow. Choose the one nearest you.",
+    type: "single",
+    options: [
+      { value: "london", label: "London" },
+      { value: "glasgow", label: "Glasgow" },
+    ],
+  },
+
   // ============ EMAIL GATE (final step before results) ============
   {
     id: "email",
     act: "email",
-    index: 8,
+    index: 9,
     eyebrow: "Assessment complete",
     prompt: "Where should we send your full report?",
     subtitle:
