@@ -24,6 +24,7 @@ import {
   type SafetyFlag,
   type TrackKey,
 } from "./quiz-data";
+import { attributionStatus, type Attribution } from "./attribution";
 
 export type GhlPayloadInput = {
   id: string;
@@ -48,6 +49,7 @@ export type GhlPayloadInput = {
   metaFbc?: string;
   metaFbclid?: string;
   metaEventSourceUrl?: string;
+  attribution?: Attribution;
 };
 
 const SAFETY_LABELS: Record<SafetyFlag, string> = {
@@ -70,6 +72,8 @@ export function buildGhlPayload(input: GhlPayloadInput) {
 
   // Split first / last name conservatively (GHL has both fields).
   const [firstName, ...lastParts] = input.name.trim().split(/\s+/);
+  const attribution = input.attribution || {};
+  const status = attributionStatus(attribution, input.metaFbc);
 
   return {
     // -------- Standard contact fields (GHL maps these automatically) --------
@@ -133,8 +137,24 @@ export function buildGhlPayload(input: GhlPayloadInput) {
     booking_url: input.bookingUrl,
 
     // -------- Source / metadata --------
-    source: "EBOO Assessment",
+    source: status === "meta_paid_social" ? "Meta paid social (campaign-tagged)" :
+      status === "meta_click_unverified" ? "Meta click (paid source unverified)" :
+      status === "tagged_other" ? "Other tagged traffic" : "EBOO website (source unverified)",
     source_form: "hsw-eboo-quiz",
+    attribution_status: status,
+    utm_source: attribution.utm_source || "",
+    utm_medium: attribution.utm_medium || "",
+    utm_campaign: attribution.utm_campaign || "",
+    utm_content: attribution.utm_content || "",
+    utm_term: attribution.utm_term || "",
+    campaign_id: attribution.campaign_id || "",
+    adset_id: attribution.adset_id || "",
+    ad_id: attribution.ad_id || "",
+    placement: attribution.placement || "",
+    site_source_name: attribution.site_source_name || "",
+    landing_url: attribution.landing_url || "",
+    attribution_captured_at: attribution.captured_at || "",
+    gclid: attribution.gclid || "",
     submitted_at: new Date().toISOString(),
     submitted_at_uk: new Date().toLocaleString("en-GB", { timeZone: "Europe/London" }),
     user_agent: input.userAgent ?? "",
@@ -143,7 +163,9 @@ export function buildGhlPayload(input: GhlPayloadInput) {
     // -------- Meta Pixel / Conversions API attribution --------
     meta_event_id: input.metaEventId ?? input.id,
     meta_pixel_id: input.metaPixelId ?? "",
-    meta_event_name: "Lead",
+    // Legacy field names are retained for GHL merge-field compatibility, internally only.
+    // This ID identifies a quiz submission; it is NOT a Meta Instant Form lead ID.
+    meta_event_name: "",
     meta_event_source_url: input.metaEventSourceUrl ?? "",
     meta_fbp: input.metaFbp ?? "",
     meta_fbc: input.metaFbc ?? "",
@@ -159,7 +181,7 @@ function stringAnswer(answers: Answers, id: string): string {
 }
 
 /**
- * Fire-and-forget POST to the GHL inbound webhook.
+ * Await the GHL webhook acknowledgement before presenting success to the visitor.
  * Returns a status object — never throws.
  */
 export async function postToGhl(
@@ -171,13 +193,13 @@ export async function postToGhl(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(12000),
     });
     if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      return { ok: false, status: res.status, error: text.slice(0, 200) };
+      return { ok: false, status: res.status, error: "CRM delivery rejected" };
     }
     return { ok: true, status: res.status };
-  } catch (e) {
-    return { ok: false, error: (e as Error).message };
+  } catch {
+    return { ok: false, error: "CRM delivery could not be confirmed" };
   }
 }

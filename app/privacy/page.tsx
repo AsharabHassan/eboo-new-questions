@@ -3,16 +3,16 @@ import { LegalShell } from "@/components/legal/legal-shell";
 export const metadata = {
   title: "Privacy Policy",
   description:
-    "How Harley Street Wellness collects, uses, and protects your personal and health information. UK GDPR compliant.",
+    "How Harley Street Wellness collects, uses, and protects your personal and health information.",
 };
 
 export default function PrivacyPage() {
   return (
-    <LegalShell eyebrow="Privacy" title="Privacy Policy" updated="May 2026">
+    <LegalShell eyebrow="Privacy" title="Privacy Policy" updated="September 2026">
       <p>
         This Privacy Policy explains how Harley Street Wellness ("<strong>HSW</strong>",
         "we", "our", "us") collects, uses, and protects information you provide when
-        using <strong>hsw.london</strong> (the "site"), our online assessment, and any
+        using <strong>eboo.harleystreetmedicalwellness.co.uk</strong> (the "site"), our online assessment, and any
         related services.
       </p>
       <p>
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
       <h3>2.1 Information you give us</h3>
       <ul>
         <li>
-          <strong>Identifiers:</strong> your first name and email address when you
+          <strong>Identifiers:</strong> your first name, email address and phone number when you
           complete the assessment.
         </li>
         <li>
@@ -54,6 +54,19 @@ export default function PrivacyPage() {
       </ul>
       <h3>2.2 Information collected automatically</h3>
       <ul>
+        <li>
+          <strong>Enquiry source:</strong> available campaign, ad and click identifiers,
+          a landing URL limited to supported campaign parameters, and submission
+          identifiers accompany your enquiry in the clinic CRM. We use them to
+          understand enquiry sources and check delivery to the clinic.
+        </li>
+        <li>
+          <strong>Optional Meta measurement:</strong> if you allow it, the Meta Pixel
+          measures visits to public pages using advertising cookies. It is kept off
+          assessment, result and booking pages. Assessment answers and scores are
+          not sent as Meta conversion events. You can change your choice on our{" "}
+          <a href="/cookies">Cookies page</a>.
+        </li>
         <li>
           <strong>Anonymous analytics:</strong> aggregated page views, referrer, and
           country-level location. We use a cookieless analytics provider (Plausible) — no
@@ -122,8 +135,10 @@ export default function PrivacyPage() {
           contents of the report email. EU/US data transfers under Standard Contractual Clauses.
         </li>
         <li>
-          <strong>GoHighLevel</strong> (booking / CRM) — receives your booking details if
-          you book a consultation.
+          <strong>GoHighLevel</strong> (clinic intake / booking / CRM) — receives your
+          contact details, assessment answers and calculated result, submission
+          identifiers and available campaign information when you submit an enquiry.
+          It also handles booking details if you book a consultation.
         </li>
         <li>
           <strong>Vercel</strong> (hosting) — processes anonymous request data and short
@@ -132,6 +147,11 @@ export default function PrivacyPage() {
         <li>
           <strong>Plausible Analytics</strong> (analytics) — receives only aggregated,
           non-identifying page-view data.
+        </li>
+        <li>
+          <strong>Meta</strong> (optional public-page measurement) — receives public-page
+          visit and browser information through its Pixel only after you allow it.
+          See the <a href="/cookies">Cookies page</a> for controls and details.
         </li>
       </ul>
       <p>

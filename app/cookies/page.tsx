@@ -1,67 +1,95 @@
 import { LegalShell } from "@/components/legal/legal-shell";
+import { CookiePreferenceControl } from "@/components/meta-pixel";
 
 export const metadata = {
   title: "Cookies",
-  description:
-    "How HSW uses cookies and similar technologies. We use no third-party tracking cookies — analytics is cookieless.",
+  description: "How HSW uses optional Meta measurement, browser storage and campaign information, and how to change your choice.",
 };
 
 export default function CookiesPage() {
   return (
-    <LegalShell eyebrow="Cookies" title="Cookie Policy" updated="May 2026">
+    <LegalShell eyebrow="Cookies" title="Cookie Policy" updated="9 September 2026">
       <p>
-        We've kept this short because there isn't much to say. HSW uses no third-party
-        tracking cookies and no advertising cookies. We're built around a privacy-first
-        analytics setup, which means you'll find no cookie banner on the site and no
-        consent toggles — there's nothing to consent to.
+        We use browser storage to support the assessment and remember your cookie
+        choice. Optional Meta measurement on our public pages starts only after
+        you choose <strong>Allow</strong>. Choosing <strong>Decline</strong> does
+        not prevent you from using the assessment or contacting the clinic.
       </p>
 
-      <h2>What we <em>do</em> use</h2>
-      <ul>
-        <li>
-          <strong>Strictly necessary browser storage</strong> — your browser's
-          sessionStorage and localStorage hold your in-progress quiz answers and your
-          assessment result ID, so the page can show you your report without an account.
-          These are <em>not cookies</em> — they live only in your own browser, are never
-          transmitted to our servers, and are cleared when you close the browser tab (for
-          sessionStorage) or when you clear your site data (for localStorage).
-        </li>
-        <li>
-          <strong>Cookieless analytics</strong> — we use{" "}
-          <a href="https://plausible.io" target="_blank" rel="noopener noreferrer">
-            Plausible Analytics
-          </a>, which records aggregated, anonymous page-view data using a fingerprint of
-          the current day's anonymised request signature only — no cookies, no IP address
-          storage, no device tracking, no cross-site identification.
-        </li>
-      </ul>
-
-      <h2>What we <em>don't</em> use</h2>
-      <ul>
-        <li>No Google Analytics or other third-party tracker.</li>
-        <li>No advertising or retargeting cookies (Facebook Pixel, Google Ads, etc.).</li>
-        <li>No social media share buttons that drop cookies.</li>
-        <li>No fingerprinting scripts.</li>
-      </ul>
-
-      <h2>Embedded third parties</h2>
+      <h2>Optional Meta measurement</h2>
       <p>
-        When you visit the <strong>/book</strong> page we load an embedded booking widget
-        from GoHighLevel. That widget runs on a separate domain
-        (api.leadconnectorhq.com) and operates under{" "}
+        When allowed, the Meta Pixel records a PageView on a public page and may
+        set or read advertising cookies such as <strong>_fbp</strong> and
+        <strong> _fbc</strong>. Meta receives information about that visit,
+        including the public page URL and browser or device information. See{" "}
+        <a href="https://www.facebook.com/privacy/policies/cookies/" target="_blank" rel="noopener noreferrer">
+          Meta's cookie policy
+        </a>.
+      </p>
+      <p>
+        We do not load the Meta Pixel on the quiz, personalised result or booking
+        pages. If the Pixel has loaded on a public page, entering the assessment
+        starts a fresh document to keep it out of the assessment. Our website does not send
+        questionnaire answers, assessment scores or protocols to Meta, or send a
+        Meta Lead event when you submit the assessment.
+      </p>
+
+      <h2>Browser storage and clinic intake</h2>
+      <ul>
+        <li>
+          <strong>Assessment information:</strong> sessionStorage and localStorage
+          support the quiz and display your report without an account. When you
+          submit an enquiry, your contact details and assessment information are
+          sent to the clinic's intake system.
+        </li>
+        <li>
+          <strong>Campaign information:</strong> sessionStorage preserves available
+          source, campaign, ad and click identifiers, together with a landing URL
+          limited to the site origin and supported campaign parameters. This
+          information accompanies your enquiry in the clinic's CRM to help us
+          understand where enquiries came from. It is not sent as an advertising
+          conversion payload.
+        </li>
+        <li>
+          <strong>Your choice:</strong> localStorage remembers whether you allowed
+          or declined Meta measurement. You can change this below or clear it in
+          your browser's site settings.
+        </li>
+      </ul>
+      <p>
+        Session storage normally lasts for the browser tab's session. Local
+        storage remains until it is removed by the site or cleared in your
+        browser. Clearing browser data does not delete an enquiry already sent
+        to the clinic.
+      </p>
+
+      <h2>Other services</h2>
+      <p>
+        Where configured, we use{" "}
+        <a href="https://plausible.io/data-policy" target="_blank" rel="noopener noreferrer">
+          Plausible
+        </a>{" "}
+        for cookieless, aggregate website measurement. The Meta choice above
+        controls the Meta Pixel.
+      </p>
+      <p>
+        The booking page can load a GoHighLevel calendar through our branded
+        booking domain, link.harleystreetmedicalwellness.co.uk. The embedded
+        service may use its own cookies or similar technologies when loaded,
+        under{" "}
         <a href="https://www.gohighlevel.com/privacy-policy" target="_blank" rel="noopener noreferrer">
-          GoHighLevel's own privacy policy and cookie practices
-        </a>
-        . If you don't book a consultation, no third-party cookies from GoHighLevel will
-        be set in your browser.
+          GoHighLevel's privacy policy
+        </a>.
       </p>
 
-      <h2>Changing your mind</h2>
+      <h2>Changing your choice</h2>
       <p>
-        Because we use no tracking cookies, there's no opt-out to configure. If you want
-        to clear your sessionStorage / localStorage data manually, use your browser's
-        site settings or developer tools.
+        Use the button below to allow or decline optional Meta measurement. If
+        you decline after allowing it, this page reloads to stop the already
+        loaded Pixel. You can remove previously stored cookies through your
+        browser's site settings.
       </p>
+      <CookiePreferenceControl />
 
       <h2>Contact</h2>
       <p>

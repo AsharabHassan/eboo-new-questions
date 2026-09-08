@@ -13,6 +13,7 @@ import "@fontsource/jetbrains-mono/500.css";
 import "./globals.css";
 import { SmoothScroll } from "@/components/smooth-scroll";
 import { MetaPixel } from "@/components/meta-pixel";
+import { AttributionCapture } from "@/components/attribution-capture";
 import { jsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/structured-data";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://hsw.london";
@@ -67,7 +68,7 @@ export const viewport: Viewport = {
 };
 
 const PLAUSIBLE_DOMAIN = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
-const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "823507040655170";
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -84,7 +85,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="grain vignette" suppressHydrationWarning>
         <SmoothScroll>{children}</SmoothScroll>
-        {/* Meta Pixel — paired with server-side CAPI for browser/server dedup. */}
+        <AttributionCapture />
+        {/* Configured public-page measurement only; assessment conversions stay in the CRM. */}
         <MetaPixel pixelId={META_PIXEL_ID} />
         {/* Plausible — cookieless analytics. Only injected when configured. */}
         {PLAUSIBLE_DOMAIN && (

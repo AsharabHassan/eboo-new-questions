@@ -5,16 +5,11 @@ import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { useQuiz } from "@/lib/quiz-store";
 import { computeScore, computeTrack, computeSafetyFlags, scoreBand } from "@/lib/quiz-data";
-import { trackPixelEvent } from "@/components/meta-pixel";
+import { captureAttribution } from "@/lib/attribution";
+import { normalisePhoneE164 } from "@/lib/phone";
 
 const EASE = [0.2, 0.9, 0.1, 1] as [number, number, number, number];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/** Returns true if at least 10 digits — covers UK landline & mobile, with or without +44. */
-function isValidPhone(value: string): boolean {
-  const digits = value.replace(/\D/g, "");
-  return digits.length >= 10 && digits.length <= 15;
-}
 
 export function EmailScreen() {
   const {
@@ -33,20 +28,23 @@ export function EmailScreen() {
   const [localPhone, setLocalPhone] = useState(phone);
   const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   /** Single-fire guard — survives React Strict Mode and rapid double-clicks. */
   const firedRef = useRef(false);
+  const attemptRef = useRef<{ id: string; signature: string } | null>(null);
 
   const score = computeScore(answers);
   const band = scoreBand(score);
-  const emailValid = EMAIL_RE.test(localEmail);
-  const phoneValid = isValidPhone(localPhone);
+  const emailValid = EMAIL_RE.test(localEmail.trim());
+  const phoneValid = Boolean(normalisePhoneE164(localPhone));
   const canContinue = emailValid && phoneValid && localName.trim().length > 1;
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     setTouched(true);
     if (!canContinue || firedRef.current) return;
     firedRef.current = true;
     setSubmitting(true);
+    setSubmitError("");
 
     const trimmedName = localName.trim();
     const trimmedEmail = localEmail.trim();
@@ -56,68 +54,50 @@ export function EmailScreen() {
     setName(trimmedName);
     setPhone(trimmedPhone);
 
-    const id = `q_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+    const signature = JSON.stringify([trimmedName, trimmedEmail, trimmedPhone, answers]);
+    if (attemptRef.current?.signature !== signature) {
+      attemptRef.current = { id: `q_${crypto.randomUUID()}`, signature };
+    }
+    const id = attemptRef.current.id;
     const track = computeTrack(answers);
     const safety = computeSafetyFlags(answers);
+    let failureMessage = "We could not confirm your enquiry was saved. Please check your connection and try again.";
 
-    // Persist the full submission so the result page can read it.
     try {
-      window.sessionStorage.setItem(
-        `hsw:${id}`,
-        JSON.stringify({
-          id,
-          score,
-          track,
-          safety,
-          answers,
-          email: trimmedEmail,
-          name: trimmedName,
-          phone: trimmedPhone,
-          createdAt: new Date().toISOString(),
+      // Preserve one submission ID across a retry; never fire a conversion before CRM receipt.
+      const response = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(25000),
+        body: JSON.stringify({
+          id, name: trimmedName, email: trimmedEmail, phone: trimmedPhone, answers,
+          attribution: captureAttribution(),
         }),
-      );
-      window.localStorage.setItem("hsw:last", id);
+      });
+      const receipt = await response.json().catch(() => null);
+      if (!response.ok || receipt?.ok !== true || receipt?.ghl?.sent !== true || receipt?.id !== id) {
+        if (typeof receipt?.error === "string") failureMessage = receipt.error;
+        throw new Error("Intake not confirmed");
+      }
+      // Make results available only after the server confirms the clinic handoff.
+      try {
+        window.sessionStorage.setItem(
+          `hsw:${id}`,
+          JSON.stringify({
+            id, score, track, safety, answers,
+            email: trimmedEmail, name: trimmedName, phone: trimmedPhone,
+            createdAt: new Date().toISOString(),
+          }),
+        );
+        window.localStorage.setItem("hsw:last", id);
+      } catch { /* the result page has a storage-disabled fallback */ }
+      setSubmissionId(id);
+      next();
     } catch {
-      /* storage may be disabled; result page falls back gracefully */
+      firedRef.current = false;
+      setSubmitting(false);
+      setSubmitError(failureMessage);
     }
-
-    // Fire Meta Pixel `Lead` event in the browser. The same `id` is sent
-    // to the server so the matching CAPI event dedupes against this one.
-    trackPixelEvent(
-      "Lead",
-      {
-        currency: "GBP",
-        value: 0,
-        content_name: "EBOO Assessment",
-        content_category: track,
-        toxic_load_score: score,
-        protocol_track: track,
-      },
-      id,
-    );
-
-    // Single POST to /api/lead — fired once per click.
-    fetch("/api/lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id,
-        name: trimmedName,
-        email: trimmedEmail,
-        phone: trimmedPhone,
-        answers,
-        score,
-        track,
-        safety,
-        metaEventId: id,
-        pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
-      }),
-    }).catch((err) => {
-      console.warn("[quiz] /api/lead failed (non-blocking)", err);
-    });
-
-    setSubmissionId(id);
-    next();
   };
 
   return (
@@ -244,6 +224,8 @@ export function EmailScreen() {
           )}
         </label>
       </motion.div>
+
+      {submitError && <p role="alert" className="mt-6 text-sm text-rouge">{submitError}</p>}
 
       <motion.div
         initial={{ opacity: 0, y: 14 }}
