@@ -72,8 +72,7 @@ export function MetaPixel({ pixelId }: { pixelId: string }) {
       if (event.persisted) restoreChoice();
     };
     const crossPrivacyBoundary = (event: MouseEvent) => {
-      if (!configured || (readConsent() !== "allowed" && !sdkMayBeLoaded.current) ||
-          event.button !== 0 || event.metaKey ||
+      if (!configured || event.button !== 0 || event.metaKey ||
           event.ctrlKey || event.shiftKey || event.altKey) return;
       const target = event.target instanceof Element ? event.target : null;
       const anchor = target?.closest<HTMLAnchorElement>("a[href]");
@@ -86,8 +85,8 @@ export function MetaPixel({ pixelId }: { pixelId: string }) {
       const enteringPrivate = isPrivatePath(url.pathname);
       if (leavingPrivate === enteringPrivate && !(enteringPrivate && sdkMayBeLoaded.current)) return;
 
-      // Isolate both directions: public pages must not load an SDK into a
-      // document that still has private routes in its client-side history.
+      // Isolate both directions even before a choice: a visitor may allow
+      // measurement later on a public page with private routes in its history.
       event.preventDefault();
       event.stopPropagation();
       window.location.assign(url.href);
