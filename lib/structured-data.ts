@@ -13,7 +13,7 @@
  * Reference: https://schema.org and https://developers.google.com/search/docs/appearance/structured-data
  */
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://hsw.london";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://eboo.harleystreetwellness.co.uk";
 
 export function organizationJsonLd() {
   return {
@@ -34,10 +34,10 @@ export function organizationJsonLd() {
     ],
     address: {
       "@type": "PostalAddress",
-      streetAddress: "London Medical Rooms, Ground Floor, 1-5 Portpool Lane, Chancery Lane",
+      streetAddress: "2 Grosvenor Gardens, Belgravia",
       addressLocality: "London",
       addressRegion: "England",
-      postalCode: "EC1N 7UU",
+      postalCode: "SW1W 0DH",
       addressCountry: "GB",
     },
     telephone: "+44 20 4628 3137",
@@ -48,10 +48,10 @@ export function organizationJsonLd() {
         telephone: "+44 20 4628 3137",
         address: {
           "@type": "PostalAddress",
-          streetAddress: "London Medical Rooms, Ground Floor, 1-5 Portpool Lane, Chancery Lane",
+          streetAddress: "2 Grosvenor Gardens, Belgravia",
           addressLocality: "London",
           addressRegion: "England",
-          postalCode: "EC1N 7UU",
+          postalCode: "SW1W 0DH",
           addressCountry: "GB",
         },
       },

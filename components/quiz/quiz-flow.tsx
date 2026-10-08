@@ -7,6 +7,7 @@ import { useQuiz } from "@/lib/quiz-store";
 import { QuizNav } from "./quiz-nav";
 import { QuestionScreen } from "./question-screen";
 import { EmailScreen } from "./email-screen";
+import { META_LEAD_RECEIPT_KEY, parseMetaLeadReceipt } from "@/lib/meta-lead-receipt";
 
 const EASE = [0.2, 0.9, 0.1, 1] as [number, number, number, number];
 
@@ -21,7 +22,14 @@ export function QuizFlow() {
   useEffect(() => {
     if (step < totalQuestions || !submissionId) return;
     setFinishing(true);
-    const t = setTimeout(() => router.push(`/result/${submissionId}`), 2200);
+    const t = setTimeout(() => {
+      let receipt = null;
+      try { receipt = parseMetaLeadReceipt(sessionStorage.getItem(META_LEAD_RECEIPT_KEY)); } catch { /* optional */ }
+      if (receipt?.eventId === submissionId) {
+        // Fresh document: never load the advertising SDK alongside quiz answers/results.
+        window.location.assign("/thank-you");
+      } else router.push(`/result/${submissionId}`);
+    }, 2200);
     return () => clearTimeout(t);
   }, [step, totalQuestions, submissionId, router]);
 

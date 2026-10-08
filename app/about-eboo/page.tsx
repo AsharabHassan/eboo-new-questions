@@ -10,13 +10,13 @@ const FAQS = [
   { q: "Is it safe?", a: "Yes for the vast majority of healthy adults. We screen explicitly for the three medical contraindications and re-verify them at the consultation before any treatment is scheduled." },
   { q: "Is EBOO regulated in the UK?", a: "EBOO is a complementary medicine procedure performed by GMC-registered doctors in CQC-regulated clinics. It is not currently a NICE-approved NHS treatment." },
   { q: "How much does it cost?", a: "Individual sessions and protocol packages — pricing is discussed during your free consultation so we can give you the right protocol for your situation, not a generic quote." },
-  { q: "Where are you?", a: "Two locations. London: London Medical Rooms, Ground Floor, 1–5 Portpool Lane, Chancery Lane, London EC1N 7UU (020 4628 3137). Glasgow: 5th Floor, Ingram House, 227 Ingram Street, Glasgow G1 1DA (0141 488 8985)." },
+  { q: "Where are you?", a: "Two locations. London: 2 Grosvenor Gardens, Belgravia, London SW1W 0DH (020 4628 3137). Glasgow: 5th Floor, Ingram House, 227 Ingram Street, Glasgow G1 1DA (0141 488 8985)." },
 ];
 
 export const metadata = {
-  title: "What is EBOO Therapy? · HSW Harley Street, London",
+  title: "What is EBOO Therapy? · HSW Belgravia, London",
   description:
-    "EBOO (Extracorporeal Blood Oxygenation and Ozonation) explained: how the procedure works, what it does in the body, what conditions it supports, safety profile, and what to expect at HSW on Harley Street.",
+    "EBOO (Extracorporeal Blood Oxygenation and Ozonation) explained: how the procedure works, what it does in the body, what conditions it supports, safety profile, and what to expect at HSW in Belgravia.",
 };
 
 const TOC = [

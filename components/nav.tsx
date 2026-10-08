@@ -36,7 +36,7 @@ export function Nav() {
           {/* Left meta — desktop only */}
           <div className="hidden md:flex items-center gap-3 text-[10px] font-mono tracking-[0.25em] text-ink-dim">
             <span className="w-1.5 h-1.5 rounded-full bg-gold shadow-[0_0_12px_var(--gold)]" />
-            EST · LONDON W1
+            LONDON · BELGRAVIA
           </div>
 
           {/* Logo — center on mobile, normal on desktop */}

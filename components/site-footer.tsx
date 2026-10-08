@@ -38,9 +38,8 @@ export function SiteFooter() {
                   London
                 </p>
                 <p className="text-[12px] leading-[1.6] text-ink-faint font-light not-italic">
-                  London Medical Rooms<br />
-                  Ground Floor, 1–5 Portpool Lane<br />
-                  Chancery Lane, London EC1N 7UU
+                  2 Grosvenor Gardens<br />
+                  Belgravia, London SW1W 0DH
                 </p>
                 <a
                   href="tel:+442046283137"

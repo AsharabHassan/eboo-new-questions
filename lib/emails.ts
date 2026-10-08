@@ -57,7 +57,7 @@ export function userConfirmationEmail(input: LeadEmailInput) {
     "If you have questions before you book, just reply to this email — a real person reads them.",
     "",
     "Harley Street Wellness",
-    "London — London Medical Rooms, Ground Floor, 1–5 Portpool Lane, Chancery Lane, London EC1N 7UU · 020 4628 3137",
+    "London — 2 Grosvenor Gardens, Belgravia, London SW1W 0DH · 020 4628 3137",
     "Glasgow — 5th Floor, Ingram House, 227 Ingram Street, Glasgow G1 1DA · 0141 488 8985",
   ].join("\n");
 
@@ -211,7 +211,7 @@ function baseHtml({ title, bodyContent }: { title: string; bodyContent: string }
       </div>
       ${bodyContent}
       <div style="margin-top:40px;padding-top:24px;border-top:1px solid #ece5d8;font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;color:#9C9586;text-align:center;line-height:1.8;">
-        LONDON · 1–5 PORTPOOL LANE, EC1N 7UU · 020 4628 3137<br>
+        LONDON · 2 GROSVENOR GARDENS, SW1W 0DH · 020 4628 3137<br>
         GLASGOW · 227 INGRAM STREET, G1 1DA · 0141 488 8985
       </div>
     </div>

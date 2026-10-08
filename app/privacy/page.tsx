@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <p>
         This Privacy Policy explains how Harley Street Wellness ("<strong>HSW</strong>",
         "we", "our", "us") collects, uses, and protects information you provide when
-        using <strong>eboo.harleystreetmedicalwellness.co.uk</strong> (the "site"), our online assessment, and any
+        using <strong>eboo.harleystreetwellness.co.uk</strong> (the "site"), our online assessment, and any
         related services.
       </p>
       <p>
@@ -24,9 +24,8 @@ export default function PrivacyPage() {
 
       <h2>1. Who we are</h2>
       <p>
-        <strong>Data controller:</strong> Harley Street Wellness Ltd, London Medical
-        Rooms, Ground Floor, 1–5 Portpool Lane, Chancery Lane, London EC1N 7UU, United
-        Kingdom. We will register with the Information Commissioner's Office prior to
+        <strong>Data controller:</strong> Harley Street Wellness Ltd, 2 Grosvenor Gardens, Belgravia,
+        London SW1W 0DH, United Kingdom. We will register with the Information Commissioner's Office prior to
         public launch; our registration number will appear here once issued.
       </p>
       <p>
@@ -64,7 +63,10 @@ export default function PrivacyPage() {
           <strong>Optional Meta measurement:</strong> if you allow it, the Meta Pixel
           measures visits to public pages using advertising cookies. It is kept off
           assessment, result and booking pages. Assessment answers and scores are
-          not sent as Meta conversion events. You can change your choice on our{" "}
+          not sent as Meta conversion parameters. Where available, a separate
+          optional form checkbox permits eligible enquiry measurement through
+          browser and server Lead events using hashed email/phone, event identifiers,
+          advertising identifiers and IP/browser details. You can change your public-page choice on our{" "}
           <a href="/cookies">Cookies page</a>.
         </li>
         <li>
@@ -149,8 +151,12 @@ export default function PrivacyPage() {
           non-identifying page-view data.
         </li>
         <li>
-          <strong>Meta</strong> (optional public-page measurement) — receives public-page
+          <strong>Meta</strong> (optional measurement) — receives public-page
           visit and browser information through its Pixel only after you allow it.
+          Separately consented, eligible enquiry measurement may send a Lead event,
+          hashed email/phone, advertising identifiers and IP/browser information;
+          it excludes assessment answers, scores and protocols. Hashed details are
+          used for matching and are not anonymous.
           See the <a href="/cookies">Cookies page</a> for controls and details.
         </li>
       </ul>
@@ -226,8 +232,8 @@ export default function PrivacyPage() {
         <strong>Email:</strong>{" "}
         <a href="mailto:hello@harleystreetmedicalwellness.co.uk">hello@harleystreetmedicalwellness.co.uk</a>
         <br />
-        <strong>London:</strong> Harley Street Wellness Ltd, London Medical Rooms,
-        Ground Floor, 1–5 Portpool Lane, Chancery Lane, London EC1N 7UU ·{" "}
+        <strong>London:</strong> Harley Street Wellness Ltd, 2 Grosvenor Gardens, Belgravia,
+        London SW1W 0DH ·{" "}
         <a href="tel:+442046283137">020 4628 3137</a>
         <br />
         <strong>Glasgow:</strong> 5th Floor, Ingram House, 227 Ingram Street, Glasgow

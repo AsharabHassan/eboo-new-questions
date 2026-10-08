@@ -2,6 +2,10 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { captureAttribution, type Attribution } from "@/lib/attribution";
+
+/** Funnel marker the CRM booking workflow routes on. Keep in sync with its If/Else branch. */
+const BOOKING_SOURCE = "eboo-site";
 
 /**
  * GoHighLevel calendar embed.
@@ -27,6 +31,11 @@ export function BookingEmbed() {
   const search = useSearchParams();
   const screening = search.get("screening") === "1";
   const [prefill, setPrefill] = useState<{ name: string; email: string; track?: string } | null>(null);
+  const [attribution, setAttribution] = useState<Attribution>({});
+
+  useEffect(() => {
+    setAttribution(captureAttribution());
+  }, []);
 
   useEffect(() => {
     try {
@@ -61,6 +70,15 @@ export function BookingEmbed() {
   if (rest.length) url.searchParams.set("last_name", rest.join(" "));
   if (prefill?.email) url.searchParams.set("email", prefill.email);
   if (prefill?.track) url.searchParams.set("notes", `Track: ${prefill.track}`);
+  // The CRM records these as the booking's attribution. utm_source marks the funnel so the
+  // booking workflow can send the Meta event to the EBOO dataset; the visitor's own source moves
+  // to utm_medium, and fbclid lets the CRM's Conversions API tie the booking to the ad click.
+  url.searchParams.set("utm_source", BOOKING_SOURCE);
+  url.searchParams.set("utm_medium", attribution.utm_source || "direct");
+  for (const key of ["utm_campaign", "utm_content", "utm_term", "fbclid"] as const) {
+    const value = attribution[key];
+    if (value) url.searchParams.set(key, value);
+  }
 
   return (
     <div className="relative">

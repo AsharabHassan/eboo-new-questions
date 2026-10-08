@@ -10,7 +10,8 @@ type Consent = "allowed" | "declined" | null;
 
 function isPrivatePath(pathname: string) {
   try { pathname = decodeURIComponent(pathname); } catch { /* Match the original path if malformed. */ }
-  return /^\/(quiz|result|book)(\/|$)/.test(pathname);
+  // Confirmation has its own consented Lead-only loader; never auto-fire PageView there.
+  return /^\/(quiz|result|book|thank-you)(\/|$)/.test(pathname);
 }
 
 function readConsent(): Consent {

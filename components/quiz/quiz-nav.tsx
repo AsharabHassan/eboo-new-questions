@@ -15,7 +15,7 @@ export function QuizNav() {
           onClick={back}
           disabled={step === 0}
           aria-label="Back"
-          className="flex items-center gap-2 text-[10px] tracking-[0.22em] font-mono uppercase text-ink-dim hover:text-gold disabled:opacity-30 transition-colors min-h-11"
+          className="flex min-w-11 items-center justify-center gap-2 text-[10px] tracking-[0.22em] font-mono uppercase text-ink-dim hover:text-gold disabled:opacity-30 transition-colors min-h-11"
         >
           <ChevronLeft size={16} strokeWidth={1.5} />
           <span className="hidden md:inline">Back</span>

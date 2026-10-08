@@ -10,12 +10,14 @@ const ENV_KEYS = [
   "GHL_WEBHOOK_URL", "GHL_WEBHOOK_URL_GLASGOW", "RESEND_API_KEY",
   "RESEND_FROM", "CLINIC_EMAIL", "META_PIXEL_ID", "META_CAPI_ACCESS_TOKEN",
   "META_CAPI_TEST_CODE", "NEXT_PUBLIC_META_PIXEL_ID", "NEXT_PUBLIC_SITE_URL",
+  "META_LEAD_ENABLED", "NEXT_PUBLIC_META_LEAD_ENABLED", "META_GRAPH_API_VERSION",
 ] as const;
 
 type CapturedCall = { url: string; payload: Record<string, unknown> };
 let originalFetch: typeof fetch;
 let originalEnv: Map<string, string | undefined>;
 let calls: CapturedCall[];
+let allowMeta: boolean;
 
 beforeEach(() => {
   originalFetch = globalThis.fetch;
@@ -25,6 +27,7 @@ beforeEach(() => {
   process.env.GHL_WEBHOOK_URL_GLASGOW = GLASGOW;
   process.env.NEXT_PUBLIC_SITE_URL = "https://assessment.invalid";
   calls = [];
+  allowMeta = false;
   mockFetch(() => new Response("{}", { status: 200 }));
 });
 
@@ -46,7 +49,9 @@ function mockFetch(
       payload: JSON.parse(typeof init?.body === "string" ? init.body : "{}"),
     };
     calls.push(call);
-    assert.ok(url === LONDON || url === GLASGOW, `Unexpected external request blocked: ${new URL(url).hostname}`);
+    assert.ok(url === LONDON || url === GLASGOW ||
+      (allowMeta && url === "https://graph.facebook.com/v25.0/999999999999999/events"),
+      `Unexpected external request blocked: ${new URL(url).hostname}`);
     assert.equal(init?.method, "POST");
     return reply(call);
   }) as typeof fetch;
@@ -150,7 +155,7 @@ test("missing Glasgow configuration never falls back to the London workflow", as
   assert.equal(calls.length, 0);
 });
 
-test("configured Meta credentials cannot cause a healthcare submission to be forwarded to Meta", async () => {
+test("configured credentials alone cannot activate Meta forwarding", async () => {
   process.env.META_PIXEL_ID = "999999999999999";
   process.env.NEXT_PUBLIC_META_PIXEL_ID = "999999999999999";
   process.env.META_CAPI_ACCESS_TOKEN = "synthetic-test-token-not-a-credential";
@@ -158,6 +163,69 @@ test("configured Meta credentials cannot cause a healthcare submission to be for
   assert.equal(response.status, 200);
   assert.equal((await response.json()).ok, true);
   assert.deepEqual(calls.map((call) => call.url), [LONDON]);
+});
+
+function enableMeta() {
+  allowMeta = true;
+  process.env.META_LEAD_ENABLED = "true";
+  process.env.NEXT_PUBLIC_META_LEAD_ENABLED = "true";
+  process.env.NEXT_PUBLIC_META_PIXEL_ID = "999999999999999";
+  process.env.META_GRAPH_API_VERSION = "v25.0"; // Synthetic stub; no live version dependency.
+  process.env.META_CAPI_ACCESS_TOKEN = "synthetic-test-token-not-a-credential";
+}
+
+test("even an enabled sender requires explicit visitor consent", async () => {
+  enableMeta();
+  const response = await submit({ ...validLead(), metaLeadConsent: "true" });
+  const body = await response.json();
+  assert.equal(body.meta.status, "no_consent");
+  assert.equal(body.meta.eventId, undefined);
+  assert.deepEqual(calls.map((call) => call.url), [LONDON]);
+});
+
+test("consented CAPI runs after CRM receipt with the same event ID and no assessment data", async () => {
+  enableMeta();
+  mockFetch((call) => new Response(JSON.stringify(
+    call.url === LONDON ? {} : { events_received: 1, messages: [] },
+  ), { status: 200 }));
+  const response = await submit({ ...validLead(), metaLeadConsent: true }, {
+    cookie: "_fbp=fb.1.12345.synthetic; _fbc=fb.1.12345.synthetic-click",
+    "x-forwarded-for": "192.0.2.1", "user-agent": "Synthetic browser",
+  });
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.meta.status, "accepted");
+  assert.equal(body.meta.eventId, validLead().id);
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0].url, LONDON);
+  const event = (calls[1].payload.data as Record<string, unknown>[])[0];
+  assert.equal(event.event_id, body.meta.eventId);
+  assert.equal(event.event_name, "Lead");
+  assert.equal(event.event_source_url, "https://assessment.invalid/quiz");
+  assert.deepEqual(event.custom_data, { currency: "GBP" });
+  const serialized = JSON.stringify(event);
+  for (const forbidden of ["answers", "symptoms", "pregnancy", "score", "protocol", "Offline Test", "offline-test@example.invalid", "+447700900123"]) {
+    assert.ok(!serialized.includes(forbidden), `Leaked field/value: ${forbidden}`);
+  }
+});
+
+test("a rejected CRM handoff cannot create a Meta Lead", async () => {
+  enableMeta();
+  mockFetch(() => new Response("{}", { status: 400 }));
+  const response = await submit({ ...validLead(), metaLeadConsent: true });
+  assert.equal(response.status, 502);
+  assert.deepEqual(calls.map((call) => call.url), [LONDON]);
+});
+
+test("CAPI rejection never loses a successfully saved enquiry", async () => {
+  enableMeta();
+  mockFetch((call) => new Response("{}", { status: call.url === LONDON ? 200 : 400 }));
+  const response = await submit({ ...validLead(), metaLeadConsent: true });
+  const body = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(body.ghl.sent, true);
+  assert.equal(body.meta.status, "failed");
+  assert.equal(body.meta.eventId, validLead().id); // Browser fallback shares the same identity.
 });
 
 test("malformed attribution cookie encodings do not lose a valid enquiry", async () => {

@@ -7,6 +7,7 @@ import { useQuiz } from "@/lib/quiz-store";
 import { computeScore, computeTrack, computeSafetyFlags, scoreBand } from "@/lib/quiz-data";
 import { captureAttribution } from "@/lib/attribution";
 import { normalisePhoneE164 } from "@/lib/phone";
+import { META_LEAD_RECEIPT_KEY } from "@/lib/meta-lead-receipt";
 
 const EASE = [0.2, 0.9, 0.1, 1] as [number, number, number, number];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,6 +30,8 @@ export function EmailScreen() {
   const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [metaLeadConsent, setMetaLeadConsent] = useState(false);
+  const measurementAvailable = process.env.NEXT_PUBLIC_META_LEAD_ENABLED === "true";
   /** Single-fire guard — survives React Strict Mode and rapid double-clicks. */
   const firedRef = useRef(false);
   const attemptRef = useRef<{ id: string; signature: string } | null>(null);
@@ -72,6 +75,7 @@ export function EmailScreen() {
         body: JSON.stringify({
           id, name: trimmedName, email: trimmedEmail, phone: trimmedPhone, answers,
           attribution: captureAttribution(),
+          metaLeadConsent: measurementAvailable && metaLeadConsent,
         }),
       });
       const receipt = await response.json().catch(() => null);
@@ -80,6 +84,14 @@ export function EmailScreen() {
         throw new Error("Intake not confirmed");
       }
       // Make results available only after the server confirms the clinic handoff.
+      try {
+        sessionStorage.removeItem(META_LEAD_RECEIPT_KEY);
+        if (metaLeadConsent && receipt.meta?.eventId === id && /^\d+$/.test(receipt.meta?.pixelId || "")) {
+          sessionStorage.setItem(META_LEAD_RECEIPT_KEY, JSON.stringify({
+            eventId: id, pixelId: receipt.meta.pixelId, createdAt: Date.now(),
+          }));
+        }
+      } catch { /* CRM success and results do not depend on optional measurement storage. */ }
       try {
         window.sessionStorage.setItem(
           `hsw:${id}`,
@@ -226,6 +238,17 @@ export function EmailScreen() {
       </motion.div>
 
       {submitError && <p role="alert" className="mt-6 text-sm text-rouge">{submitError}</p>}
+
+      {measurementAvailable && (
+        <label className="mt-6 flex items-start gap-3 text-sm leading-relaxed text-ink-dim">
+          <input type="checkbox" checked={metaLeadConsent}
+            onChange={(event) => setMetaLeadConsent(event.target.checked)} className="mt-1" />
+          <span>Optional: allow Meta to measure this enquiry using a Lead event,
+            hashed email and phone, advertising identifiers and IP/browser details.
+            Assessment answers, scores and results are excluded. Your report is available
+            with either choice. <a href="/cookies" className="underline">Measurement details</a>.</span>
+        </label>
+      )}
 
       <motion.div
         initial={{ opacity: 0, y: 14 }}

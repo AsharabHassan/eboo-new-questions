@@ -30,8 +30,24 @@ export default function CookiesPage() {
         We do not load the Meta Pixel on the quiz, personalised result or booking
         pages. If the Pixel has loaded on a public page, entering the assessment
         starts a fresh document to keep it out of the assessment. Our website does not send
-        questionnaire answers, assessment scores or protocols to Meta, or send a
-        Meta Lead event when you submit the assessment.
+        questionnaire answers, assessment scores or protocols to Meta.
+      </p>
+
+      <h2>Optional enquiry measurement</h2>
+      <p>
+        If enquiry measurement is available, the contact form offers a separate,
+        optional checkbox. With your permission, after the clinic confirms receipt,
+        we send Meta a Lead event, an event identifier, hashed email and phone,
+        advertising cookie identifiers and IP/browser details. Hashing supports
+        matching and does not make these details anonymous. The event identifies an
+        enquiry on this clinic website; it excludes your assessment answers, score,
+        protocol and report. Declining does not affect your enquiry or report.
+      </p>
+      <p>
+        A confirmation page may send the same Lead event through the Meta Pixel,
+        with a shared identifier to avoid counting it twice. No Meta SDK is loaded
+        beside your assessment or personalised report. This measurement is enabled
+        only where the submission event is eligible under Meta's restrictions.
       </p>
 
       <h2>Browser storage and clinic intake</h2>
@@ -47,8 +63,9 @@ export default function CookiesPage() {
           source, campaign, ad and click identifiers, together with a landing URL
           limited to the site origin and supported campaign parameters. This
           information accompanies your enquiry in the clinic's CRM to help us
-          understand where enquiries came from. It is not sent as an advertising
-          conversion payload.
+          understand where enquiries came from. The full campaign object is not
+          sent to Meta; eligible, separately consented enquiry measurement may use
+          the advertising cookie identifiers described above.
         </li>
         <li>
           <strong>Your choice:</strong> localStorage remembers whether you allowed

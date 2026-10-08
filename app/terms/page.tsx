@@ -123,8 +123,8 @@ export default function TermsPage() {
         <strong>Email:</strong>{" "}
         <a href="mailto:hello@harleystreetmedicalwellness.co.uk">hello@harleystreetmedicalwellness.co.uk</a>
         <br />
-        <strong>London:</strong> Harley Street Wellness Ltd, London Medical Rooms,
-        Ground Floor, 1–5 Portpool Lane, Chancery Lane, London EC1N 7UU ·{" "}
+        <strong>London:</strong> Harley Street Wellness Ltd, 2 Grosvenor Gardens, Belgravia,
+        London SW1W 0DH ·{" "}
         <a href="tel:+442046283137">020 4628 3137</a>
         <br />
         <strong>Glasgow:</strong> 5th Floor, Ingram House, 227 Ingram Street, Glasgow

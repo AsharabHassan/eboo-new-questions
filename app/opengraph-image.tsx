@@ -6,7 +6,7 @@ import { ImageResponse } from "next/og";
 // time and cached at the edge.
 
 export const runtime = "edge";
-export const alt = "HSW — A human oil change, on Harley Street.";
+export const alt = "HSW — A human oil change, in Belgravia.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -76,7 +76,7 @@ export default async function Image() {
 
         {/* Bottom plate */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "#9C9586", fontSize: 13, letterSpacing: 3, fontFamily: "monospace" }}>
-          <span>HSW · LONDON W1 · MMXXVI</span>
+          <span>HSW · BELGRAVIA · MMXXVI</span>
           <span style={{ color: "#C9A347" }}>●</span>
           <span>hsw.london</span>
         </div>

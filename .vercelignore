@@ -1,0 +1,9 @@
+node_modules
+.next
+.next-tracking-check
+.env*
+*.tsbuildinfo
+tests
+META-LEAD-SETUP.md
+RESPONSIVE-RELEASE-20261008.md
+/*.png

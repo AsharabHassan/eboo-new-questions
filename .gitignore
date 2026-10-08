@@ -15,3 +15,4 @@ next-env.d.ts
 .claude
 /*.png
 
+.next-tracking-check/

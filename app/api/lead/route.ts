@@ -5,6 +5,7 @@ import { clinicNotificationEmail, userConfirmationEmail } from "@/lib/emails";
 import { buildGhlPayload, postToGhl } from "@/lib/ghl";
 import { normalizeAttribution, readMetaCookies } from "@/lib/attribution";
 import { normalisePhoneE164 } from "@/lib/phone";
+import { metaLeadConfig, sendMetaLead } from "@/lib/meta-lead";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -12,7 +13,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type LeadBody = {
   id?: unknown; name?: unknown; email?: unknown; phone?: unknown;
-  answers?: Answers; attribution?: unknown;
+  answers?: Answers; attribution?: unknown; metaLeadConsent?: unknown;
 };
 
 export async function POST(req: Request) {
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
   const resultUrl = `${siteUrl.replace(/\/$/, "")}/result/${body.id}`;
   const bookingUrl = `${siteUrl.replace(/\/$/, "")}/book${safety.length ? "?screening=1" : ""}`;
   const attribution = normalizeAttribution(body.attribution);
-  // Click identifiers remain inside the clinic CRM; they are not forwarded to Meta here.
+  // Campaign metadata stays in the CRM. The optional sender below uses a separate allowlist.
   const { fbp, fbc } = readMetaCookies(req.headers.get("cookie"));
   const fbclid = attribution.fbclid || (fbc?.match(/^fb\.\d+\.\d+\.(.+)$/)?.[1] ?? "");
   const payload = buildGhlPayload({
@@ -103,7 +104,23 @@ export async function POST(req: Request) {
       console.warn("[lead] Optional email delivery failed after confirmed CRM intake");
     } });
   }
-  // The EBOO domain has health-provider restrictions. Do not send assessment/Lead events
-  // or health-derived parameters to advertising endpoints, including renamed equivalents.
-  return NextResponse.json({ ok: true, id: body.id, resultUrl, bookingUrl, ghl: { sent: true } });
+  // Only after a confirmed CRM receipt, explicit visitor consent and operator activation.
+  // Activation requires eligibility for this actual assessment-submission context;
+  // removing health fields does not by itself make a restricted event eligible.
+  const meta = await sendMetaLead({
+    eventId: body.id, email: body.email.trim(), phoneE164,
+    sourceUrl: new URL("/quiz", siteUrl).toString(),
+    consent: body.metaLeadConsent === true, fbp, fbc,
+    userAgent: req.headers.get("user-agent") || undefined,
+    ipAddress: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined,
+  });
+  const config = metaLeadConfig();
+  return NextResponse.json({
+    ok: true, id: body.id, resultUrl, bookingUrl, ghl: { sent: true },
+    meta: {
+      status: meta.status,
+      // An API receipt is transport acceptance, not proof of processing or attribution.
+      ...(config.enabled && body.metaLeadConsent === true ? { eventId: body.id, pixelId: config.pixelId } : {}),
+    },
+  });
 }

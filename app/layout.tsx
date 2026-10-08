@@ -16,12 +16,12 @@ import { MetaPixel } from "@/components/meta-pixel";
 import { AttributionCapture } from "@/components/attribution-capture";
 import { jsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/structured-data";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://hsw.london";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://eboo.harleystreetwellness.co.uk";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "HSW — A human oil change, on Harley Street.",
+    default: "HSW — A human oil change, in Belgravia.",
     template: "%s · HSW",
   },
   description:
@@ -41,14 +41,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_GB",
     siteName: "Harley Street Wellness",
-    title: "HSW — A human oil change, on Harley Street.",
+    title: "HSW — A human oil change, in Belgravia.",
     description:
       "A one-hour medical procedure that filters the residue of modern life from your blood. Take the 3-minute assessment.",
     url: SITE_URL,
   },
   twitter: {
     card: "summary_large_image",
-    title: "HSW — A human oil change, on Harley Street.",
+    title: "HSW — A human oil change, in Belgravia.",
     description:
       "A one-hour medical procedure that filters the residue of modern life from your blood. Take the 3-minute assessment.",
   },
